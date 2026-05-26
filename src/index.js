@@ -4,6 +4,7 @@ const { buildVintedUrl } = require('./url');
 const { launchBrowser, scrapePage } = require('./scraper');
 const { sendDiscordNotification } = require('./discord');
 const { loadMemory, saveMemory, hasBeenSeen, addSeen } = require('./memory');
+const { checkRelevance } = require('./filter');
 
 let isFirstRun = true;
 
@@ -23,11 +24,17 @@ async function runRoutine() {
 
             for (const item of items) {
                 if (!hasBeenSeen(item.id)) {
-                    newItemsFound++;
-                    addSeen(item.id);
-                    
-                    if (!isFirstRun) {
-                        await sendDiscordNotification(item);
+                    const isRelevant = checkRelevance(item.title, search.search_text, search.min_relevance);
+
+                    if (isRelevant) {
+                        newItemsFound++;
+                        addSeen(item.id);
+                        
+                        if (!isFirstRun) {
+                            await sendDiscordNotification(item);
+                        }
+                    } else {
+                        addSeen(item.id);
                     }
                 }
             }

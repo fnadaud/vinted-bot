@@ -1,25 +1,37 @@
 const fs = require('fs').promises;
 const { SAVE_FILE } = require('./config');
 
+const MAX_MEMORY_SIZE = 5000; 
+
 let seenItems = new Set();
 
 async function loadMemory() {
     try {
         const data = await fs.readFile(SAVE_FILE, 'utf8');
-        seenItems = new Set(JSON.parse(data));
-        console.log(`[${new Date().toLocaleTimeString()}] 💾 Mémoire chargée : ${seenItems.size} IDs récupérés.`);
+        const itemsArray = JSON.parse(data);
+        seenItems = new Set(itemsArray);
+        console.log(`📁 Mémoire chargée : ${seenItems.size} annonces en base.`);
     } catch (error) {
+        console.log("📁 Aucun historique trouvé, création d'une nouvelle mémoire.");
         seenItems = new Set();
-        console.log(`[${new Date().toLocaleTimeString()}] 📝 Aucun historique trouvé. Création d'un nouveau fichier.`);
     }
 }
 
 async function saveMemory() {
     try {
-        const idsArray = Array.from(seenItems);
-        await fs.writeFile(SAVE_FILE, JSON.stringify(idsArray), 'utf8');
+        let itemsArray = Array.from(seenItems);
+
+        if (itemsArray.length > MAX_MEMORY_SIZE) {
+            const itemsToRemove = itemsArray.length - MAX_MEMORY_SIZE;
+            itemsArray = itemsArray.slice(itemsToRemove);
+            
+            seenItems = new Set(itemsArray);
+            console.log(`🧹 Nettoyage de la mémoire : ${itemsToRemove} vieilles annonces supprimées.`);
+        }
+
+        await fs.writeFile(SAVE_FILE, JSON.stringify(itemsArray));
     } catch (error) {
-        console.error("❌ Erreur lors de la sauvegarde :", error.message);
+        console.error("❌ Erreur lors de la sauvegarde de la mémoire :", error.message);
     }
 }
 
