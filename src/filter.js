@@ -37,7 +37,7 @@ function getWordSimilarity(word1, word2) {
     return ((maxLength - distance) / maxLength) * 100;
 }
 
-function checkRelevance(title, searchText, minSimilarity = 80) {
+function checkRelevance(title, searchText, minSimilarity = 95) {
     if (!minSimilarity || minSimilarity <= 0) return true;
 
     const normalize = (str) => {

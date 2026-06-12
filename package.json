@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "node src/server.js",
+    "bot": "node src/bot.js",
+    "bot:init": "node src/bot.js --silent",
     "test:discord": "node src/test-discord.js"
   },
   "keywords": [],
@@ -14,6 +15,7 @@
   "type": "commonjs",
   "dependencies": {
     "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "node-cron": "^4.2.1",
     "puppeteer": "^25.0.4",
     "puppeteer-extra": "^3.3.6",
