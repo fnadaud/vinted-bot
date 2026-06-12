@@ -1,137 +1,107 @@
-# Vinted Monitor Bot 🚀
+# Vinted Scraper & Bot Discord
 
-Un bot Node.js pour surveiller automatiquement les annonces Vinted selon plusieurs critères de recherche et envoyer des notifications sur un serveur Discord via un Webhook.
+Ce projet est une application Node.js permettant de surveiller les nouvelles annonces Vinted. Il propose une architecture double : un bot automatisé envoyant des notifications sur Discord, et un tableau de bord web local pour visualiser les annonces manuellement.
 
+## Fonctionnalités
 
-## 📂 Architecture du Projet
+* Scraping automatisé via Puppeteer.
+* Filtrage intelligent par pertinence du titre.
+* Notifications Discord avec images, prix et liens directs.
+* Tableau de bord accessible via navigateur.
+* Architecture mémoire séparée : protection anti-spam pour Discord et affichage instantané pour le web.
+* Support complet pour une automatisation via GitHub Actions.
+* Support Docker pour l'hébergement du serveur web.
 
-```text
-vinted-bot/
-├── src/
-│   ├── config.js          # Centralisation de la configuration et des recherches
-│   ├── url.js             # Assembleur dynamique d'URL Vinted (URLSearchParams)
-│   ├── scraper.js         # Logique Puppeteer (lancement navigateur & scraping)
-│   ├── memory.js          # Gestion du fichier historique (lecture/écriture JSON)
-│   ├── discord.js         # Formatage de l'embed et envoi du Webhook Discord
-│   ├── test-discord.js    # Script de test unitaire pour valider le Webhook
-│   └── index.js           # Point d'entrée principal (Chef d'orchestre & Cron)
-├── .env                   # Variables d'environnement (Webhook, Intervalle)
-├── .gitignore             # Fichiers exclus de Git
-├── .dockerignore          # Fichiers exclus de l'image Docker
-├── Dockerfile             # Recette de l'image Docker (inclut dépendances Chrome)
-├── package.json           # Dépendances et scripts de lancement
-└── seenItems.json         # Historique des annonces déjà vues (généré automatiquement)
+## Prérequis
+
+* Node.js
+* Git
+* Un Webhook Discord (pour les notifications)
+
+## Installation
+
+1. Cloner le dépôt :
+```bash
+   git clone <url-du-depot>
+   cd vinted-bot
 ```
 
-
-## 🛠️ Configuration Initiale
-
-### 1. Cloner le projet et installer les dépendances
+2. Installer les dépendances :
 
 ```bash
-npm install
+   npm install
 ```
 
-### 2. Configurer les variables d'environnement
+## Configuration
 
-Créez un fichier `.env` à la racine du projet :
+### Variables d'environnement
+
+Créer un fichier `.env` à la racine du projet et y ajouter l'URL du webhook Discord :
 
 ```env
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/VOTRE_WEBHOOK_ICI
-CRON_INTERVAL="*/15 * * * *"
+DISCORD_WEBHOOK_URL=[https://discord.com/api/webhooks/](https://discord.com/api/webhooks/)...
 ```
 
-### 3. Ajuster vos filtres de recherche
+### Paramètres de recherche
 
-Ouvrez `src/config.js` pour y déclarer vos requêtes sous le tableau `SEARCHES`.
-*Exemple de configuration avec filtres par défaut et surcharges :*
+Modifier le fichier `src/config.js` pour ajuster vos recherches.
 
-```javascript
-DEFAULT_PARAMS: {
-    "catalog[]": "2319",             // Livres par défaut
-    "price_to": "30",                // 30€ max par défaut
-    "currency": "EUR",
-    "order": "newest_first",
-    "language_book_ids[]": "6436"    // Français par défaut
-},
-SEARCHES: [
-    {
-        search_text: "Le seigneur des anneaux",
-        price_to: "15"               // Écrase le prix max à 15€ pour ce livre
-    },
-    {
-        search_text: "L'empire du silence",
-        "language_book_ids[]": null, // Désactive le filtre langue de livre
-        price_to: "50"
-    }
-]
-```
+* `DEFAULT_PARAMS` : Paramètres d'URL appliqués à toutes les recherches (tri, prix, catégorie).
+* `SEARCHES` : Tableau contenant vos recherches spécifiques (mots-clés, score de pertinence minimum requis, etc.).
 
+## Utilisation
 
-## 🚀 Lancement en Local
+Le projet propose plusieurs commandes via `npm` selon l'utilisation souhaitée.
 
-Le projet intègre trois commandes principales déclarées dans le `package.json` :
+### Tableau de bord Web (Interface Graphique)
 
-### Tester le Webhook Discord
-
-Envoie instantanément le résultat le plus récent de votre première recherche sur Discord pour valider le visuel et la connexion :
-
-```bash
-npm run test:discord
-```
-
-### Lancer en Mode Développement
-
-Démarre le bot avec **Nodemon**, qui redémarrera automatiquement l'application à chaque modification de code :
-
-```bash
-npm run dev
-```
-
-### Lancer en Production (Standard)
-
-Démarre le bot normalement :
+Pour lancer l'interface web locale :
 
 ```bash
 npm start
 ```
 
+* Accéder au tableau de bord via `http://localhost:3000`.
+* Cliquer sur "Refresh" pour lancer le scraping manuellement et afficher les annonces triées par groupes.
 
-## 🐳 Lancement avec Docker
+### Bot Discord (Notifications)
 
-Docker encapsule toutes les dépendances graphiques Linux indispensables pour exécuter Puppeteer, garantissant un fonctionnement identique partout.
-
-### 1. Construire l'image Docker
-
-Déclenchez la création de l'image localement (nommée `vinted-bot`) :
+Pour lancer le bot manuellement une seule fois et envoyer des notifications pour les nouvelles annonces :
 
 ```bash
-docker build -t vinted-bot .
+npm run bot
 ```
 
-### 2. Lancer un conteneur de Test
+### Initialisation Silencieuse (Recommandé)
 
-Pour exécuter le conteneur une fois au premier plan en lui passant le fichier `.env` local :
+Lors de l'ajout d'une nouvelle recherche, il est conseillé de remplir la mémoire du bot sans envoyer de notifications sur Discord pour éviter le spam initial :
 
 ```bash
-docker run --env-file .env vinted-bot
+npm run bot:init
 ```
 
-### 3. Déploiement permanent (Production)
+## Architecture des Mémoires
 
-Pour le faire tourner en arrière-plan (détaché), s'assurer qu'il redémarre automatiquement si la machine reboot, et **conserver le fichier mémoire** `seenItems.json` sur l'hôte afin de ne jamais perdre l'historique :
+Le projet utilise deux systèmes de mémoire distincts pour répondre à des besoins différents :
+
+* Mémoire du Bot (`seenItems.json`) : Fonctionne comme une file d'attente FIFO limitée à 5000 identifiants. Elle empêche le spam sur Discord causé par la remontée d'anciennes annonces (yoyo des prix, annonces vendues).
+* Mémoire du Web (`dashboardData.json`) : Écrasée à chaque rafraîchissement. Elle permet au tableau de bord d'afficher exactement ce qui est présent sur la première page de Vinted à l'instant T.
+
+## Déploiement
+
+### Automatisation via GitHub Actions
+
+Le projet inclut un fichier de workflow `.github/workflows/bot.yml` configuré pour exécuter la commande `npm run bot` toutes les 15 minutes.
+
+1. Ajouter le fichier `seenItems.json` au dépôt Git.
+2. Ajouter le secret `DISCORD_WEBHOOK_URL` dans les paramètres "Secrets and variables" du dépôt GitHub.
+3. Le workflow s'exécutera automatiquement, committera les changements de mémoire et poussera les mises à jour sur le dépôt.
+
+### Docker (Serveur Web)
+
+Un `Dockerfile` est fourni pour conteneuriser le serveur web Express.
 
 ```bash
-docker run -d \
-  --name mon-vinted-bot \
-  --restart always \
-  --env-file .env \
-  -v $(pwd)/seenItems.json:/app/seenItems.json \
-  vinted-bot
+docker build -t vinted-dashboard .
+docker run -p 3000:3000 vinted-dashboard
 ```
-
-
-## 📝 Bon à savoir
-
-* **Premier passage (`isFirstRun`) :** Lors du premier cycle de vérification, la console indiquera `Initialisation terminée. X annonces ajoutées à la mémoire sans envoi de notification`. C'est le comportement normal pour éviter un spam initial. Les notifications arriveront dès le cycle suivant.
-* **Veille d'ordinateur :** Si vous l'exécutez localement sur votre ordinateur personnel, assurez-vous d'éteindre uniquement votre écran mais de désactiver la mise en veille système pour éviter que le script ne s'interrompe.
