@@ -12,6 +12,7 @@ async function sleep(ms) {
 }
 
 async function runBot() {
+    console.log(`Démarrage du bot ${isSilent ? '(Mode Initialisation)' : ''}`);
     const browser = await launchBrowser();
     let memoryUpdated = false;
 
@@ -19,12 +20,18 @@ async function runBot() {
         await loadMemory();
 
         for (const search of SEARCHES) {
+            console.log(`Recherche : "${search.search_text}"`);
             const finalUrl = buildVintedUrl(search);
             const items = await scrapePage(browser, finalUrl);
+            
+            let newCount = 0;
+            let relevantCount = 0;
 
             for (const item of items) {
                 if (!hasBeenSeen(item.id)) {
+                    newCount++;
                     if (checkRelevance(item.title, search.search_text, search.min_relevance)) {
+                        relevantCount++;
                         addSeen(item.id);
                         memoryUpdated = true;
                         if (!isSilent) {
@@ -36,14 +43,20 @@ async function runBot() {
                     }
                 }
             }
+            
+            console.log(`   └─ ${items.length} analysées | ${newCount} nouvelles | ${relevantCount} pertinentes`);
             await sleep(2000);
         }
 
         if (memoryUpdated) {
             await saveMemory();
+            console.log(`Mémoire mise à jour`);
+        } else {
+            console.log(`Aucune nouveauté, mémoire inchangée`);
         }
     } finally {
         await browser.close();
+        console.log(`Fin du cycle`);
         process.exit(0);
     }
 }

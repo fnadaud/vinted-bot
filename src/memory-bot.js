@@ -9,8 +9,10 @@ async function loadMemory() {
         const data = await fs.readFile(BOT_SAVE_FILE, 'utf8');
         const itemsArray = JSON.parse(data);
         seenItems = new Set(itemsArray);
+        console.log(`Mémoire chargée (${seenItems.size} annonces)`);
     } catch (error) {
         seenItems = new Set();
+        console.log(`Création d'une nouvelle mémoire`);
     }
 }
 
