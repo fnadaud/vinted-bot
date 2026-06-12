@@ -34,4 +34,7 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git add seenItems.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "update items" && git push)
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git commit -m "update items"
+            git push
+          fi
