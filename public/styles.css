@@ -99,11 +99,17 @@ button:disabled {
     font-size: 20px;
     font-weight: 600;
     color: var(--text-main);
-    margin-bottom: 20px;
-    padding-bottom: 8px;
+    margin: 0 0 20px 0;
+    padding: 15px 0 8px 0;
     border-bottom: 2px solid var(--primary);
-    display: inline-block;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     text-transform: capitalize;
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-color);
+    z-index: 10;
 }
 
 .grid {
@@ -185,19 +191,51 @@ button:disabled {
 }
 
 .toggle-button {
-    background-color: #ebedee;
-    border: 1px solid #d8dbe0;
-    border-radius: 8px;
-    color: #000;
+    background-color: #e0f2f3;
+    border: none;
+    border-radius: 20px;
+    color: var(--primary);
     cursor: pointer;
     display: block;
     font-size: 14px;
-    font-weight: 500;
-    margin: 20px auto;
-    padding: 10px 20px;
-    transition: background-color 0.2s;
+    font-weight: 600;
+    margin: 0;
+    padding: 6px 16px;
+    transition: all 0.2s ease;
+    box-shadow: none;
 }
 
 .toggle-button:hover {
-    background-color: #d8dbe0;
+    background-color: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(9, 177, 186, 0.2);
+}
+
+.more-indicator-card {
+    grid-column: 1 / -1;
+    padding: 24px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.more-indicator-card span {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.more-indicator-card:hover {
+    transform: translateY(-4px);
+    background-color: #f1f5f9;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+.group-section.expanded .more-indicator-card {
+    display: none;
 }

@@ -15,7 +15,24 @@ function displayItems(groupedData) {
         
         const groupTitle = document.createElement('h2');
         groupTitle.className = 'group-title';
-        groupTitle.textContent = `${group.search_text} (${group.items.length})`;
+        
+        const titleText = document.createElement('span');
+        titleText.textContent = `${group.search_text} (${group.items.length})`;
+        groupTitle.appendChild(titleText);
+
+        let toggleBtn = null;
+
+        if (group.items.length > 10) {
+            toggleBtn = document.createElement('button');
+            toggleBtn.className = 'toggle-button';
+            toggleBtn.textContent = 'Voir plus';
+            toggleBtn.addEventListener('click', () => {
+                const isExpanded = groupSection.classList.toggle('expanded');
+                toggleBtn.textContent = isExpanded ? 'Voir moins' : 'Voir plus';
+            });
+            groupTitle.appendChild(toggleBtn);
+        }
+
         groupSection.appendChild(groupTitle);
         
         if (group.items.length === 0) {
@@ -41,19 +58,27 @@ function displayItems(groupedData) {
                     </a>
                 `;
                 grid.innerHTML += card;
+
+                if (index === 9 && group.items.length > 10) {
+                    const hiddenCount = group.items.length - 10;
+                    grid.innerHTML += `
+                        <div class="card more-indicator-card">
+                            <span>+ ${hiddenCount} annonces</span>
+                        </div>
+                    `;
+                }
             });
             
             groupSection.appendChild(grid);
 
             if (group.items.length > 10) {
-                const toggleBtn = document.createElement('button');
-                toggleBtn.className = 'toggle-button';
-                toggleBtn.textContent = 'Voir plus';
-                toggleBtn.addEventListener('click', () => {
-                    const isExpanded = groupSection.classList.toggle('expanded');
-                    toggleBtn.textContent = isExpanded ? 'Voir moins' : 'Voir plus';
-                });
-                groupSection.appendChild(toggleBtn);
+                const indicatorCard = grid.querySelector('.more-indicator-card');
+                if (indicatorCard && toggleBtn) {
+                    indicatorCard.addEventListener('click', () => {
+                        groupSection.classList.add('expanded');
+                        toggleBtn.textContent = 'Voir moins';
+                    });
+                }
             }
         }
         
