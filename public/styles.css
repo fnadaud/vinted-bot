@@ -13,6 +13,7 @@ body {
     margin: 0;
     padding: 0;
     color: var(--text-main);
+    -webkit-tap-highlight-color: transparent;
 }
 
 .container {
@@ -57,12 +58,6 @@ button {
     display: flex;
     align-items: center;
     gap: 8px;
-}
-
-button:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 8px -1px rgba(9, 177, 186, 0.3);
 }
 
 button:disabled {
@@ -129,11 +124,6 @@ button:disabled {
     display: flex;
     flex-direction: column;
     border: 1px solid #f1f5f9;
-}
-
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 20px -5px rgba(0,0,0,0.1);
 }
 
 .card-image-wrapper {
@@ -205,11 +195,8 @@ button:disabled {
     box-shadow: none;
 }
 
-.toggle-button:hover {
-    background-color: var(--primary);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px -1px rgba(9, 177, 186, 0.2);
+.toggle-button:active {
+    transform: scale(0.95);
 }
 
 .more-indicator-card {
@@ -230,12 +217,91 @@ button:disabled {
     color: var(--text-muted);
 }
 
-.more-indicator-card:hover {
-    transform: translateY(-4px);
-    background-color: #f1f5f9;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-}
-
 .group-section.expanded .more-indicator-card {
     display: none;
+}
+
+@media (hover: hover) {
+    button:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 8px -1px rgba(9, 177, 186, 0.3);
+    }
+
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 20px -5px rgba(0,0,0,0.1);
+    }
+
+    .toggle-button:hover {
+        background-color: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(9, 177, 186, 0.2);
+    }
+
+    .more-indicator-card:hover {
+        transform: translateY(-4px);
+        background-color: #f1f5f9;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px 16px;
+    }
+
+    header {
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+    }
+
+    .header-text h1 {
+        font-size: 24px;
+    }
+
+    .header-text p {
+        font-size: 12px;
+    }
+
+    .group-section {
+        margin-bottom: 36px;
+    }
+
+    .group-title {
+        font-size: 16px;
+        padding: 12px 0 8px 0;
+        margin: 0 0 16px 0;
+    }
+
+    .toggle-button {
+        padding: 4px 12px;
+        font-size: 12px;
+    }
+
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .card-content {
+        padding: 10px;
+    }
+
+    .price {
+        font-size: 16px;
+    }
+
+    .title {
+        font-size: 12px;
+    }
+
+    .more-indicator-card {
+        padding: 16px;
+    }
+
+    .more-indicator-card span {
+        font-size: 14px;
+    }
 }
