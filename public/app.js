@@ -1,12 +1,11 @@
 const container = document.getElementById('results-container');
 const status = document.getElementById('status');
-const refreshBtn = document.getElementById('refreshBtn');
 
 function displayItems(groupedData) {
     container.innerHTML = '';
     
     if (!groupedData || groupedData.length === 0 || !groupedData[0].search_text) {
-        container.innerHTML = `<div class="empty-state">Aucune donnée formatée. Cliquez sur Refresh.</div>`;
+        container.innerHTML = '<div class="empty-state">Aucune donnée formatée.</div>';
         return;
     }
     
@@ -28,9 +27,10 @@ function displayItems(groupedData) {
             const grid = document.createElement('div');
             grid.className = 'grid';
             
-            group.items.forEach(item => {
+            group.items.forEach((item, index) => {
+                const isHidden = index >= 10 ? ' hidden-item' : '';
                 const card = `
-                    <a href="${item.url}" target="_blank" class="card">
+                    <a href="${item.url}" target="_blank" class="card${isHidden}">
                         <div class="card-image-wrapper">
                             <img src="${item.image}" alt="${item.title}" loading="lazy">
                         </div>
@@ -44,24 +44,24 @@ function displayItems(groupedData) {
             });
             
             groupSection.appendChild(grid);
+
+            if (group.items.length > 10) {
+                const toggleBtn = document.createElement('button');
+                toggleBtn.className = 'toggle-button';
+                toggleBtn.textContent = 'Voir plus';
+                toggleBtn.addEventListener('click', () => {
+                    const isExpanded = groupSection.classList.toggle('expanded');
+                    toggleBtn.textContent = isExpanded ? 'Voir moins' : 'Voir plus';
+                });
+                groupSection.appendChild(toggleBtn);
+            }
         }
         
         container.appendChild(groupSection);
     });
 }
 
-async function loadInitialData() {
-    try {
-        const res = await fetch('/api/items');
-        const items = await res.json();
-        displayItems(items);
-    } catch (error) {
-        container.innerHTML = `<div class="empty-state">Impossible de charger les données.</div>`;
-    }
-}
-
 async function refreshData() {
-    refreshBtn.disabled = true;
     status.classList.add('visible');
     container.style.opacity = '0.5';
     
@@ -70,12 +70,36 @@ async function refreshData() {
         const newItems = await res.json();
         displayItems(newItems);
     } catch (err) {
-        alert("Erreur");
+        alert("Erreur lors de la mise à jour");
     } finally {
-        refreshBtn.disabled = false;
         status.classList.remove('visible');
         container.style.opacity = '1';
     }
 }
 
-loadInitialData();
+async function loadData() {
+    try {
+        const response = await fetch('/api/data');
+        const data = await response.json();
+        
+        const timestampElement = document.getElementById('last-updated');
+        
+        if (data.timestamp) {
+            const date = new Date(data.timestamp);
+            const timeString = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateString = date.toLocaleDateString('fr-FR');
+            timestampElement.innerText = `Dernière mise à jour automatique : ${dateString} à ${timeString}`;
+        } else {
+            timestampElement.innerText = 'Aucune donnée en mémoire.';
+        }
+
+        displayItems(data.groups);
+    } catch (error) {
+        const timestampElement = document.getElementById('last-updated');
+        if (timestampElement) {
+            timestampElement.innerText = 'Erreur lors du chargement des données.';
+        }
+    }
+}
+
+loadData();

@@ -3,6 +3,7 @@ const { buildVintedUrl } = require('./url');
 const { launchBrowser, scrapePage } = require('./scraper');
 const { sendDiscordNotification } = require('./discord');
 const { loadMemory, saveMemory, hasBeenSeen, addSeen } = require('./memory-bot');
+const { saveDashboardMemory } = require('./memory-dashboard');
 const { checkRelevance } = require('./filter');
 
 const isSilent = process.argv.includes('--silent');
@@ -15,6 +16,7 @@ async function runBot() {
     console.log(`Démarrage du bot ${isSilent ? '(Mode Initialisation)' : ''}`);
     const browser = await launchBrowser();
     let memoryUpdated = false;
+    let groupedResults = [];
 
     try {
         await loadMemory();
@@ -26,8 +28,13 @@ async function runBot() {
             
             let newCount = 0;
             let relevantCount = 0;
+            let validDashboardItems = [];
 
             for (const item of items) {
+                if (checkRelevance(item.title, search.search_text, search.min_relevance)) {
+                    validDashboardItems.push(item);
+                }
+
                 if (!hasBeenSeen(item.id)) {
                     newCount++;
                     if (checkRelevance(item.title, search.search_text, search.min_relevance)) {
@@ -44,9 +51,18 @@ async function runBot() {
                 }
             }
             
+            validDashboardItems.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+            groupedResults.push({
+                search_text: search.search_text,
+                items: validDashboardItems
+            });
+
             console.log(`   └─ ${items.length} analysées | ${newCount} nouvelles | ${relevantCount} pertinentes`);
             await sleep(2000);
         }
+
+        await saveDashboardMemory(groupedResults);
+        console.log(`Dashboard mis à jour avec les dernières données`);
 
         if (memoryUpdated) {
             await saveMemory();

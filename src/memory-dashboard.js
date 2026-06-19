@@ -1,19 +1,25 @@
 const fs = require('fs').promises;
-const { DASHBOARD_SAVE_FILE } = require('./config');
+const path = require('path');
 
-async function loadDashboardMemory() {
-    try {
-        const data = await fs.readFile(DASHBOARD_SAVE_FILE, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        return [];
-    }
-}
+const DASHBOARD_FILE = path.join(__dirname, '../dashboardData.json');
 
-async function saveDashboardMemory(items) {
+async function saveDashboardMemory(groupedResults) {
     try {
-        await fs.writeFile(DASHBOARD_SAVE_FILE, JSON.stringify(items));
+        const dataToSave = {
+            timestamp: new Date().toISOString(),
+            groups: groupedResults
+        };
+        await fs.writeFile(DASHBOARD_FILE, JSON.stringify(dataToSave));
     } catch (error) {}
 }
 
-module.exports = { loadDashboardMemory, saveDashboardMemory };
+async function loadDashboardMemory() {
+    try {
+        const data = await fs.readFile(DASHBOARD_FILE, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        return { timestamp: null, groups: [] };
+    }
+}
+
+module.exports = { saveDashboardMemory, loadDashboardMemory };

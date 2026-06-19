@@ -40,7 +40,7 @@ header {
 .header-text p {
     margin: 0;
     color: var(--text-muted);
-    font-size: 16px;
+    font-size: 14px;
 }
 
 button {
@@ -174,4 +174,30 @@ button:disabled {
     grid-column: 1 / -1;
     background: #f1f5f9;
     border-radius: 8px;
+}
+
+.card.hidden-item {
+    display: none;
+}
+
+.group-section.expanded .card.hidden-item {
+    display: flex;
+}
+
+.toggle-button {
+    background-color: #ebedee;
+    border: 1px solid #d8dbe0;
+    border-radius: 8px;
+    color: #000;
+    cursor: pointer;
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 20px auto;
+    padding: 10px 20px;
+    transition: background-color 0.2s;
+}
+
+.toggle-button:hover {
+    background-color: #d8dbe0;
 }
